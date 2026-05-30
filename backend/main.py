@@ -32,3 +32,9 @@ def post_todos(todo: Todo):
     }
     list_todos.append(new_todo)
     return list_todos
+
+@app.delete("/todos/{todo_id}")
+def delete_todo(todo_id: int):
+    global list_todos
+    list_todos = [todo for todo in list_todos if todo["id"] != todo_id]
+    return {"message": "deleted"}
