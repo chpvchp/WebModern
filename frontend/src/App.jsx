@@ -6,6 +6,8 @@ export default function App() {
   const [adding, setAdding] = useState(false);
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [editId, setEditID] = useState(null);
+  const [editTitle, setEditTitle] = useState("");
 
   const getTodos = async () => {
     setLoading(true);
@@ -42,6 +44,24 @@ export default function App() {
     setDeleting(false);
   };
 
+  const startEdit = async (todo) => {
+    setEditID(todo.id);
+    setEditTitle(todo.title);
+  };
+
+  const saveEdit = async () => {
+    await fetch(`http://localhost:8000/todos/${editId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ title: editTitle }),
+    });
+    setEditID(null);
+    setEditTitle("");
+    getTodos();
+  };
+
   useEffect(() => {
     getTodos();
   }, []);
@@ -70,14 +90,42 @@ export default function App() {
           <p className="m-2 text-center italic">Loading...</p>
         ) : (
           todos.map((todo) => (
-            <div className="p-4 bg-white rounded-lg flex flex-col justify-center items-center gap-2 shadow transition duration-200 hover:scale-105 hover:shadow-md" key={todo.id}>
-              <p className="p-2 border rounded-md text-center">{todo.title}</p>
-              <button
-                className={`p-2 text-white font-sans font-bold rounded-md ${deleting ? "bg-gray-400 cursor-not-allowed" : " bg-blue-400 transition duration-200 hover:bg-blue-600 "}`}
-                onClick={() => deleteTodo(todo.id)}
-              >
-                {deleting ? "Del..." : "Delete"}
-              </button>
+            <div
+              className="p-4 bg-white rounded-lg flex flex-col justify-center items-center gap-2 shadow transition duration-200 hover:scale-105 hover:shadow-md"
+              key={todo.id}
+            >
+              {editId == todo.id ? (
+                <div className="flex flex-col gap-2">
+                  <input
+                    className="p-2 border border-gray-400 rounded-md text-center"
+                    type="text"
+                    placeholder="Nhập new title..."
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                  />
+                  <button className="p-2 bg-blue-400 font-sans font-bold text-white rounded-xl transition duration-200 hover:bg-blue-600" onClick={saveEdit}>
+                    Save
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <p className="p-2 border rounded-md text-center">
+                    {todo.title}
+                  </p>
+                  <button
+                    className={`p-2 text-white font-sans font-bold rounded-md ${deleting ? "bg-gray-400 cursor-not-allowed" : " bg-blue-400 transition duration-200 hover:bg-blue-600 "}`}
+                    onClick={() => deleteTodo(todo.id)}
+                  >
+                    {deleting ? "Del..." : "Delete"}
+                  </button>
+                  <button
+                    className="p-2 text-white font-sans font-bold bg-blue-400 rounded-md transition duration-200 hover:bg-blue-600"
+                    onClick={() => startEdit(todo)}
+                  >
+                    Edit
+                  </button>
+                </>
+              )}
             </div>
           ))
         )}
