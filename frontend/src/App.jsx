@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+const BASE_URL = "http://localhost:8000";
+
 export default function App() {
   const [text, setText] = useState("");
   const [todos, setTodo] = useState([]);
@@ -11,7 +13,7 @@ export default function App() {
 
   const getTodos = async () => {
     setLoading(true);
-    const res = await fetch("http://localhost:8000/todos");
+    const res = await fetch(`${BASE_URL}/todos`);
     const data = await res.json();
     setTodo(data);
     setLoading(false);
@@ -23,7 +25,7 @@ export default function App() {
       setAdding(false);
       return;
     }
-    await fetch("http://localhost:8000/todos", {
+    await fetch(`${BASE_URL}/todos`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -37,7 +39,7 @@ export default function App() {
 
   const deleteTodo = async (id) => {
     setDeleting(true);
-    await fetch(`http://localhost:8000/todos/${id}`, {
+    await fetch(`${BASE_URL}/todos/${id}`, {
       method: "DELETE",
     });
     getTodos();
@@ -50,7 +52,7 @@ export default function App() {
   };
 
   const saveEdit = async () => {
-    await fetch(`http://localhost:8000/todos/${editId}`, {
+    await fetch(`${BASE_URL}/todos/${editId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
